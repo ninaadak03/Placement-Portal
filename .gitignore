@@ -1,0 +1,49 @@
+## #######################################################
+## .NET / Visual Studio / SQL Server Configuration
+## #######################################################
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bbin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# SQL Server local database files
+*.mdf
+*.ldf
+*.ndf
+
+# Secrets & Local Configurations
+appsettings.Development.json
+appsettings.Local.json
+*.secrets.json
+
+## #######################################################
+## Angular / Node.js Configuration
+## #######################################################
+# Dependencies
+node_modules/
+
+# Build outputs
+/dist/
+/.angular/
+
+# Local environment variables
+.env
+.env.local
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.docstates
