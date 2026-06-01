@@ -130,9 +130,90 @@ public class OpeningService : IOpeningService
             }).FirstOrDefaultAsync();
     }
 
-    public Task<ServiceResponseDto> UpdateOpeningAsync(int openingId, UpdateOpeningDto dto)
+    public async Task<ServiceResponseDto> UpdateOpeningAsync(int openingId, UpdateOpeningDto dto)
     {
-        throw new NotImplementedException();
+        Opening? opening = await _context.Openings.FirstOrDefaultAsync(o => o.Id == openingId);
+
+        if (opening == null)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Opening not found."
+            };
+        }
+
+        bool companyExists = await _context.Companies.AnyAsync(c => c.Id == dto.CompanyId);
+
+        if (!companyExists)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Company not found."
+            };
+        }
+
+        dto.Role = dto.Role.Trim();
+
+        if (string.IsNullOrWhiteSpace(dto.Role))
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Role is required."
+            };
+        }
+
+        if (dto.ApplicationDeadline <= DateTime.UtcNow)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Application deadline must be in the future."
+            };
+        }
+
+        if (!string.IsNullOrWhiteSpace(dto.AllowedBranches))
+        {
+            string[] branches = dto.AllowedBranches
+                .Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string branch in branches)
+            {
+                if (!ValidBranches.Contains(branch.Trim()))
+                {
+                    return new ServiceResponseDto
+                    {
+                        Success = false,
+                        Message = $"Invalid branch: {branch}"
+                    };
+                }
+            }
+
+            dto.AllowedBranches = string.Join(",",
+                branches.Select(b => b.Trim()));
+        }
+
+        opening.CompanyId = dto.CompanyId;
+        opening.Role = dto.Role;
+        opening.Stipend = dto.Stipend;
+        opening.CTC = dto.CTC;
+        opening.MaxParticipants = dto.MaxParticipants;
+        opening.MinCGPA = dto.MinCGPA;
+        opening.MinTenthPercentage = dto.MinTenthPercentage;
+        opening.MinTwelfthPercentage = dto.MinTwelfthPercentage;
+        opening.AllowedBranches = dto.AllowedBranches;
+        opening.MaxAge = dto.MaxAge;
+        opening.ApplicationDeadline = dto.ApplicationDeadline;
+
+        await _context.SaveChangesAsync();
+
+        return new ServiceResponseDto
+        {
+            Success = true,
+            Message = "Opening updated successfully."
+        };
     }
 
     public Task<ServiceResponseDto> DeleteOpeningAsync(int openingId)
