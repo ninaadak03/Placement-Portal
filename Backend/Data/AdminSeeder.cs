@@ -5,8 +5,10 @@ namespace Backend.Data;
 
 public static class AdminSeeder
 {
-    public static async Task SeedAdminAsync(ApplicationDbContext context)
+    public static async Task SeedAdminAsync(ApplicationDbContext context, IConfiguration configuration)
     {
+        var email = configuration["Admin:Email"];
+        var adminPassword = configuration["Admin:Password"];
         bool adminExists = await context.Users.AnyAsync(u => u.Role == "Admin");
 
         if (adminExists)
@@ -17,7 +19,7 @@ public static class AdminSeeder
         User admin = new()
         {
             Email = "admin@placementportal.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword!),
             Role = "Admin",
             IsVerified = true
         };

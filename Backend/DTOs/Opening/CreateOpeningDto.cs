@@ -11,10 +11,10 @@ public class CreateOpeningDto
     [MaxLength(150)]
     public string Role { get; set; } = string.Empty;
 
-    [Range(0, 100)]
+    [Range(0, 100000)]
     public decimal? Stipend { get; set; }
 
-    [Range(0, 100)]
+    [Range(0, 10000000)]
     public decimal? CTC { get; set; }
 
     [Range(1, int.MaxValue)]

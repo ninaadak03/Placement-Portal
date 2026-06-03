@@ -93,7 +93,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    await AdminSeeder.SeedAdminAsync(context);
+    await AdminSeeder.SeedAdminAsync(context, builder.Configuration);
 }
 
 app.Run();

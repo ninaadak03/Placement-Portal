@@ -61,17 +61,13 @@ public class OpeningController : ControllerBase
     }
 
     [HttpDelete("{openingId}")]
-    public async Task<IActionResult> DeleteOpening(
-        int openingId)
+    public async Task<IActionResult> DeleteOpening(int openingId)
     {
-        var result = await _openingService
-            .DeleteOpeningAsync(openingId);
-
+        var result = await _openingService.DeleteOpeningAsync(openingId);
         if (!result.Success)
         {
             return BadRequest(result);
         }
-
         return Ok(result);
     }
 }
