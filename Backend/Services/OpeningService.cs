@@ -216,9 +216,39 @@ public class OpeningService : IOpeningService
         };
     }
 
-    public Task<ServiceResponseDto> DeleteOpeningAsync(int openingId)
+    public async Task<ServiceResponseDto> DeleteOpeningAsync(int openingId)
     {
-        throw new NotImplementedException();
+        Opening? opening = await _context.Openings.FirstOrDefaultAsync(o => o.Id == openingId);
+
+        if (opening == null)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Opening not found."
+            };
+        }
+
+        bool hasApplications = await _context.Applications.AnyAsync(a => a.OpeningId == openingId);
+
+        if (hasApplications)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Cannot delete opening with existing applications."
+            };
+        }
+
+        _context.Openings.Remove(opening);
+
+        await _context.SaveChangesAsync();
+
+        return new ServiceResponseDto
+        {
+            Success = true,
+            Message = "Opening deleted successfully."
+        };
     }
 
     private static readonly HashSet<string> ValidBranches =
