@@ -13,6 +13,12 @@ public class Application
     [Required]
     public int OpeningId { get; set; }
 
+    [Required]
+    public DateOnly AppliedOn { get; set; }
+
+    [Required]
+    public bool IsSelected { get; set; } = false;
+
     [ForeignKey("StudentId")]
     public Student Student { get; set; } = null!;
 
