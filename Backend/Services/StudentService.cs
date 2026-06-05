@@ -135,6 +135,69 @@ public class StudentService : IStudentService
         };
     }
 
+    public async Task<List<StudentOpeningResponseDto>> GetAvailableOpeningsAsync(int userId)
+    {
+        Student? student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+
+        if(student == null)
+        {
+            throw new Exception("Student not found.");
+        }
+        
+        var openings = await _context.Openings.Include(o => o.Company)
+            .Where(o => o.ApplicationDeadline > DateTime.UtcNow)
+            .ToListAsync();
+        
+        List<StudentOpeningResponseDto> result = [];
+
+        int age = DateTime.Today.Year - student.DateOfBirth.Year;
+        if (student.DateOfBirth.ToDateTime(TimeOnly.MinValue) > DateTime.Today.AddYears(-age))
+        {
+            age--;
+        }
+
+        foreach (var opening in openings)
+        {
+            bool eligible = student.CGPA >= opening.MinCGPA &&
+                            student.TenthPercentage >= opening.MinTenthPercentage &&
+                            student.TwelfthPercentage >= opening.MinTwelfthPercentage;
+
+            if (!string.IsNullOrWhiteSpace(opening.AllowedBranches))
+            {
+                var allowedBranches = opening.AllowedBranches.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(b => b.Trim());
+                eligible &= allowedBranches.Contains(student.Branch);
+            }
+
+            if (opening.MaxAge.HasValue)
+            {
+                eligible &= age <= opening.MaxAge.Value;
+            }
+
+            bool hasApplied = await _context.Applications.AnyAsync(a =>
+                    a.StudentId == student.Id &&
+                    a.OpeningId == opening.Id);
+            
+            result.Add(new StudentOpeningResponseDto
+            {
+                OpeningId = opening.Id,
+                CompanyName = opening.Company.Name,
+                Role = opening.Role,
+                Stipend = opening.Stipend,
+                CTC = opening.CTC,
+                MinCGPA = opening.MinCGPA,
+                MinTenthPercentage = opening.MinTenthPercentage,
+                MinTwelfthPercentage = opening.MinTwelfthPercentage,
+                AllowedBranches = opening.AllowedBranches,
+                MaxAge = opening.MaxAge,
+                ApplicationDeadline = opening.ApplicationDeadline,
+                IsEligible = eligible,
+                HasApplied = hasApplied
+            });
+        }
+        return result;
+    }
+
     private static readonly HashSet<string> ValidBranches =
     [
         "CSE",

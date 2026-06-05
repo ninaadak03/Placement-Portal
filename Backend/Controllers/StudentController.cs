@@ -36,6 +36,15 @@ public class StudentController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("openings")]
+    public async Task<IActionResult> GetAvailableOpenings()
+    {
+        var openings = await _studentService
+            .GetAvailableOpeningsAsync(GetUserId());
+
+        return Ok(openings);
+    }
+
     private int GetUserId()
     {
         return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

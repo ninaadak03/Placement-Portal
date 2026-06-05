@@ -8,4 +8,6 @@ public interface IStudentService
     Task<StudentProfileResponseDto> GetProfileAsync(int userId);
 
     Task<ServiceResponseDto> CompleteProfileAsync(int userId,CompleteProfileDto dto);
+
+    Task<List<StudentOpeningResponseDto>> GetAvailableOpeningsAsync(int userId);
 }
