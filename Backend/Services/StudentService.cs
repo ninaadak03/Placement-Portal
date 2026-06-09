@@ -150,29 +150,9 @@ public class StudentService : IStudentService
         
         List<StudentOpeningResponseDto> result = [];
 
-        int age = DateTime.Today.Year - student.DateOfBirth.Year;
-        if (student.DateOfBirth.ToDateTime(TimeOnly.MinValue) > DateTime.Today.AddYears(-age))
-        {
-            age--;
-        }
-
         foreach (var opening in openings)
         {
-            bool eligible = student.CGPA >= opening.MinCGPA &&
-                            student.TenthPercentage >= opening.MinTenthPercentage &&
-                            student.TwelfthPercentage >= opening.MinTwelfthPercentage;
-
-            if (!string.IsNullOrWhiteSpace(opening.AllowedBranches))
-            {
-                var allowedBranches = opening.AllowedBranches.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(b => b.Trim());
-                eligible &= allowedBranches.Contains(student.Branch);
-            }
-
-            if (opening.MaxAge.HasValue)
-            {
-                eligible &= age <= opening.MaxAge.Value;
-            }
+            bool eligible = IsStudentEligible(student, opening);
 
             bool hasApplied = await _context.Applications.AnyAsync(a =>
                     a.StudentId == student.Id &&
@@ -196,6 +176,182 @@ public class StudentService : IStudentService
             });
         }
         return result;
+    }
+
+    public async Task<ServiceResponseDto> ApplyToOpeningAsync(int userId, int openingId)
+    {
+        // Get student
+        Student? student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+
+        if (student == null)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Student not found."
+            };
+        }
+        // Profile must be completed
+        if (!student.IsProfileCompleted)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Complete your profile before applying."
+            };
+        }
+        // Get opening
+        Opening? opening = await _context.Openings.Include(o => o.Company)
+            .FirstOrDefaultAsync(o => o.Id == openingId);
+
+        if (opening == null)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Opening not found."
+            };
+        }
+        // Deadline check
+        if (opening.ApplicationDeadline <= DateTime.UtcNow)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Application deadline has passed."
+            };
+        }
+        // Already applied?
+        bool alreadyApplied = await _context.Applications
+            .AnyAsync(a => a.StudentId == student.Id && a.OpeningId == openingId);
+
+        if (alreadyApplied)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "You have already applied to this opening."
+            };
+        }
+        // Max participants check
+        if (opening.MaxParticipants.HasValue)
+        {
+            int applicationCount = await _context.Applications.CountAsync(a => a.OpeningId == openingId);
+            if (applicationCount >= opening.MaxParticipants.Value)
+            {
+                return new ServiceResponseDto
+                {
+                    Success = false,
+                    Message = "Application limit reached."
+                };
+            }
+        }
+        // Dream offer rule
+        if (student.IsPlaced)
+        {
+            if (!opening.CTC.HasValue)
+            {
+                return new ServiceResponseDto
+                {
+                    Success = false,
+                    Message = "Placed students cannot apply for internship-only openings."
+                };
+            }
+            if (!student.PlacedCTC.HasValue)
+            {
+                return new ServiceResponseDto
+                {
+                    Success = false,
+                    Message = "Placed CTC information missing."
+                };
+            }
+            if (opening.CTC <= student.PlacedCTC.Value * 1.5m)
+            {
+                return new ServiceResponseDto
+                {
+                    Success = false,
+                    Message = "Only dream offers above 1.5x your current package are allowed."
+                };
+            }
+        }
+
+        // Eligibility check
+        bool eligible = IsStudentEligible(student,opening);
+
+        if (!eligible)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "You are not eligible for this opening."
+            };
+        }
+
+        // Create application
+        Application application = new()
+        {
+            StudentId = student.Id,
+            OpeningId = opening.Id,
+            AppliedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            IsSelected = false
+        };
+
+        _context.Applications.Add(application);
+
+        await _context.SaveChangesAsync();
+
+        return new ServiceResponseDto
+        {
+            Success = true,
+            Message = "Application submitted successfully."
+        };
+    }
+
+    public async Task<List<StudentApplicationResponseDto>> GetApplicationsAsync(int userId)
+    {
+        Student? student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+
+        if (student == null)
+        {
+            return [];
+        }
+
+        return await _context.Applications.Where(a => a.StudentId == student.Id)
+            .Select(a => new StudentApplicationResponseDto
+            {
+                ApplicationId = a.Id,
+                CompanyName = a.Opening.Company.Name,
+                Role = a.Opening.Role,
+                AppliedOn = a.AppliedOn,
+                IsSelected = a.IsSelected
+            }).ToListAsync();
+    }
+
+    private bool IsStudentEligible(Student student, Opening opening)
+    {
+        bool eligible =
+            student.CGPA >= opening.MinCGPA &&
+            student.TenthPercentage >= opening.MinTenthPercentage &&
+            student.TwelfthPercentage >= opening.MinTwelfthPercentage;
+
+        // Branch check
+        if (!string.IsNullOrWhiteSpace(opening.AllowedBranches))
+        {
+            var allowedBranches = opening.AllowedBranches
+                .Split(',', StringSplitOptions.RemoveEmptyEntries).Select(b => b.Trim());
+            eligible &= allowedBranches.Contains(student.Branch);
+        }
+        // Age check
+        if (opening.MaxAge.HasValue)
+        {
+            int age = DateTime.Today.Year - student.DateOfBirth.Year;
+            if (student.DateOfBirth.ToDateTime(TimeOnly.MinValue) > DateTime.Today.AddYears(-age))
+            {
+                age--;
+            }
+            eligible &= age <= opening.MaxAge.Value;
+        }
+        return eligible;
     }
 
     private static readonly HashSet<string> ValidBranches =

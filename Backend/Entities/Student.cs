@@ -92,6 +92,9 @@ public class Student
 
     public bool IsProfileCompleted { get; set; }
 
+    [Column(TypeName = "decimal(10,2)")]
+    public decimal? PlacedCTC { get; set; }
+
     [ForeignKey("UserId")]
     public User User { get; set; } = null!;
 

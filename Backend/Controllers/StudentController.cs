@@ -45,6 +45,28 @@ public class StudentController : ControllerBase
         return Ok(openings);
     }
 
+    [HttpPost("openings/{openingId}/apply")]
+    public async Task<IActionResult> ApplyToOpening(int openingId)
+    {
+        var result = await _studentService
+            .ApplyToOpeningAsync(GetUserId(), openingId);
+
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("applications")]
+    public async Task<IActionResult> GetApplications()
+    {
+        var applications = await _studentService.GetApplicationsAsync(GetUserId());
+
+        return Ok(applications);
+    }
+
     private int GetUserId()
     {
         return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

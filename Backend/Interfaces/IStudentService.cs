@@ -10,4 +10,8 @@ public interface IStudentService
     Task<ServiceResponseDto> CompleteProfileAsync(int userId,CompleteProfileDto dto);
 
     Task<List<StudentOpeningResponseDto>> GetAvailableOpeningsAsync(int userId);
+
+    Task<ServiceResponseDto> ApplyToOpeningAsync(int userId, int openingId);
+
+    Task<List<StudentApplicationResponseDto>> GetApplicationsAsync(int userId);
 }
