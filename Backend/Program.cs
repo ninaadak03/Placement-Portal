@@ -73,6 +73,8 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IOpeningService, OpeningService>();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<TestDataSeeder>();
 
 var app = builder.Build();
 
@@ -96,5 +98,11 @@ using (var scope = app.Services.CreateScope())
 
     await AdminSeeder.SeedAdminAsync(context, builder.Configuration);
 }
+
+// using (var scope = app.Services.CreateScope())
+// {
+//     var seeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
+//     await seeder.SeedStudentsAsync();
+// }
 
 app.Run();

@@ -26,14 +26,11 @@ public class ApplicationController : ControllerBase
     [HttpPost("{applicationId}/select")]
     public async Task<IActionResult> SelectStudent(int applicationId)
     {
-        var result =
-            await _applicationService.SelectStudentAsync(applicationId);
-
+        var result = await _applicationService.SelectStudentAsync(applicationId);
         if (!result.Success)
         {
             return BadRequest(result);
         }
-
         return Ok(result);
     }
 }

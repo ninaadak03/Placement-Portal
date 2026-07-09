@@ -75,12 +75,8 @@ public class ApplicationService : IApplicationService
         if (opening.CTC.HasValue)
         {
             student.IsPlaced = true;
-
-            student.PlacedCompanyId =
-                opening.CompanyId;
-
-            student.PlacedCTC =
-                opening.CTC.Value;
+            student.PlacedCompanyId = opening.CompanyId;
+            student.PlacedCTC = opening.CTC.Value;
         }
         await _context.SaveChangesAsync();
         return new ServiceResponseDto
