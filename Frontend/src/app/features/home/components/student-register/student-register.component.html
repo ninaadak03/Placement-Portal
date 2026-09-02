@@ -1,1 +1,48 @@
-<p>student-register works!</p>
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" placeholder="Enter your Email ID" />
+
+    @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+      <small class="error">Please enter a valid email.</small>
+    }
+  </div>
+
+  <div>
+    <label for="rollNo">Roll Number</label>
+    <input id="rollNo" type="text" formControlName="rollNo" placeholder="Enter your Roll Number" />
+
+    @if (registerForm.controls.rollNo.touched && registerForm.controls.rollNo.invalid) {
+      <small class="error">Enter a valid roll number.</small>
+    }
+  </div>
+
+  <div>
+    <label for="password">Password</label>
+    <input id="password" type="password" formControlName="password" placeholder="Enter Password" />
+
+    @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+      <small class="error">
+        Minimum 8 characters with uppercase, lowercase, number and special character.
+      </small>
+    }
+  </div>
+
+  <button
+  type="submit"
+  [disabled]="registerForm.invalid || isSubmitting">
+
+  @if (isSubmitting) {
+    Registering...
+  } @else {
+    Register
+  }
+
+</button>
+
+@if (serverError) {
+  <small class="error server-error">
+    {{ serverError }}
+  </small>
+}
+</form>

@@ -1,3 +1,16 @@
-<h1>College Placement Portal</h1>
+<div class="home-container">
+  <app-auth-card>
+    <h1>College Placement Portal</h1>
 
-<p>Home feature loaded successfully.</p>
+    <app-auth-tabs [selectedTab]="selectedTab" (selectedTabChange)="onSelectedTabChange($event)">
+    </app-auth-tabs>
+
+    @if (selectedTab === AuthTab.StudentRegister) {
+      <app-student-register />
+    } @else if (selectedTab === AuthTab.StudentLogin) {
+      <app-student-login />
+    } @else {
+      <app-admin-login />
+    }
+  </app-auth-card>
+</div>

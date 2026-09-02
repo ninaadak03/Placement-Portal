@@ -36,7 +36,7 @@ public class EmailService : IEmailService
             _smtpSettings.Username,
             _smtpSettings.Password);
 
-        smtpClient.EnableSsl = true;
+        smtpClient.EnableSsl = false;
 
         await smtpClient.SendMailAsync(mail);
     }

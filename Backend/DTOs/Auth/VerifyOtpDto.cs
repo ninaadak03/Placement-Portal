@@ -7,8 +7,7 @@ public class VerifyOtpDto
     [Required]
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "OTP is required.")]
+    [Required(ErrorMessage = "OTP is required.")] 
     [MaxLength(10)]
     public string OtpCode { get; set; } = string.Empty;
 

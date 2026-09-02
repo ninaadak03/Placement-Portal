@@ -1,1 +1,28 @@
-<p>auth-tabs works!</p>
+<div class="auth-tabs">
+  <button
+    type="button"
+    class="tab"
+    [class.active]="selectedTab === AuthTab.StudentRegister"
+    (click)="selectTab(AuthTab.StudentRegister)"
+  >
+    Student Register
+  </button>
+
+  <button
+    type="button"
+    class="tab"
+    [class.active]="selectedTab === AuthTab.StudentLogin"
+    (click)="selectTab(AuthTab.StudentLogin)"
+  >
+    Student Login
+  </button>
+
+  <button
+    type="button"
+    class="tab"
+    [class.active]="selectedTab === AuthTab.AdminLogin"
+    (click)="selectTab(AuthTab.AdminLogin)"
+  >
+    Admin Login
+  </button>
+</div>
