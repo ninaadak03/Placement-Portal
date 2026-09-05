@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router'
+import { Router } from '@angular/router';
 
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-student-register',
@@ -15,6 +16,7 @@ export class StudentRegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
 
   protected readonly registerForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
@@ -37,23 +39,23 @@ export class StudentRegisterComponent {
     ],
   });
 
-  protected isSubmitting = false;
-  protected serverError = '';
+  protected readonly isSubmitting = signal(false);
 
   protected onSubmit(): void {
-    if (this.registerForm.invalid || this.isSubmitting) {
+    if (this.registerForm.invalid || this.isSubmitting()) {
       this.registerForm.markAllAsTouched();
       return;
     }
 
-    this.isSubmitting = true;
-    this.serverError = '';
+    this.isSubmitting.set(true);
 
     const request = this.registerForm.getRawValue();
 
     this.authService.register(request).subscribe({
-      next: (response) => {
-        this.isSubmitting = false;
+      next: () => {
+        this.isSubmitting.set(false);
+
+        this.authService.setPendingRegistration(request);
 
         this.router.navigate(['/verify-otp'], {
           state: {
@@ -63,10 +65,11 @@ export class StudentRegisterComponent {
       },
 
       error: (error) => {
-        this.isSubmitting = false;
+        this.isSubmitting.set(false);
 
-        this.serverError =
-          error.error?.message ?? 'Registration failed. Please try again.';
+        const message = error.error?.message ?? 'Registration failed. Please try again.';
+
+        this.toastService.error(message);
       },
     });
   }

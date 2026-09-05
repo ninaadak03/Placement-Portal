@@ -1,0 +1,43 @@
+<div class="otp-container">
+  <div class="otp-card">
+    <h1>Verify Your Email</h1>
+
+    <p>
+      Enter the OTP sent to
+      <strong>{{ email }}</strong>
+    </p>
+
+    <p class="warning">Please do not refresh this page while verifying your OTP.</p>
+
+    <form [formGroup]="otpForm" (ngSubmit)="onSubmit()">
+      <label for="otpCode">OTP</label>
+
+      <input
+        id="otpCode"
+        type="text"
+        formControlName="otpCode"
+        maxlength="10"
+        autocomplete="one-time-code"
+        placeholder="Enter OTP"
+      />
+
+      @if (otpForm.controls.otpCode.touched && otpForm.controls.otpCode.invalid) {
+        <small class="error"> Please enter the OTP. </small>
+      }
+
+      @if (serverError()) {
+        <small class="error">
+          {{ serverError() }}
+        </small>
+      }
+
+      <button type="submit" [disabled]="otpForm.invalid || isSubmitting()">
+        @if (isSubmitting()) {
+          Verifying...
+        } @else {
+          Verify OTP
+        }
+      </button>
+    </form>
+  </div>
+</div>

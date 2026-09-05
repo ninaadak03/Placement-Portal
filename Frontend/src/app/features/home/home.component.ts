@@ -24,7 +24,7 @@ import { AdminLoginComponent } from './components/admin-login/admin-login.compon
 export class HomeComponent {
   protected readonly AuthTab = AuthTab;
 
-  protected selectedTab = AuthTab.StudentRegister;
+  protected selectedTab: AuthTab = history.state?.activeTab ?? AuthTab.StudentRegister;
 
   protected onSelectedTabChange(tab: AuthTab): void {
     this.selectedTab = tab;

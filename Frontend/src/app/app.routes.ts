@@ -5,10 +5,10 @@ export const routes: Routes = [
     path: '',
     loadChildren: () => import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
   },
-  // {
-  //   path: 'verify-otp',
-  //   loadChildren: () => import('./features/auth/otp/otp.routes').then((m) => m.OTP_ROUTES),
-  // },
+  {
+    path: 'verify-otp',
+    loadChildren: () => import('./features/auth/otp/otp.routes').then((m) => m.OTP_ROUTES),
+  },
   // {
   //   path: 'student',
   //   loadChildren: () => import('./features/student/student.routes').then((m) => m.STUDENT_ROUTES),

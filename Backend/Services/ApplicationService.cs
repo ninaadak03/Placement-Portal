@@ -24,10 +24,11 @@ public class ApplicationService : IApplicationService
             {
                 ApplicationId = a.Id,
                 StudentId = a.StudentId,
-                StudentName = a.Student.Name,
+                // FIX: Added '?? string.Empty' and '?? 0m' fallbacks for nullable Student properties
+                StudentName = a.Student.Name ?? string.Empty,
                 RollNo = a.Student.RollNo,
-                Branch = a.Student.Branch,
-                CGPA = a.Student.CGPA,
+                Branch = a.Student.Branch ?? string.Empty,
+                CGPA = a.Student.CGPA ?? 0m,
                 AppliedOn = a.AppliedOn,
                 IsSelected = a.IsSelected
             }).ToListAsync();

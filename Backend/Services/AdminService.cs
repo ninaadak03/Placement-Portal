@@ -39,16 +39,16 @@ public class AdminService : IAdminService
         }
 
         return await query.Select(s => new AdminStudentResponseDto
-            {
-                StudentId = s.Id,
-                Name = s.Name,
-                RollNo = s.RollNo,
-                Email = s.User.Email,
-                Branch = s.Branch,
-                CGPA = s.CGPA,
-                IsPlaced = s.IsPlaced,
-                PlacedCompanyName = s.PlacedCompany != null ? s.PlacedCompany.Name: null
-            }).ToListAsync();
+        {
+            StudentId = s.Id,
+            Name = s.Name ?? string.Empty,
+            RollNo = s.RollNo,
+            Email = s.User.Email,
+            Branch = s.Branch ?? string.Empty,
+            CGPA = s.CGPA ?? 0m,
+            IsPlaced = s.IsPlaced,
+            PlacedCompanyName = s.PlacedCompany != null ? s.PlacedCompany.Name : null
+        }).ToListAsync();
     }
 
     public async Task<AdminStudentDetailResponseDto?> GetStudentByIdAsync(int studentId)
@@ -57,15 +57,15 @@ public class AdminService : IAdminService
             .Select(s => new AdminStudentDetailResponseDto
             {
                 StudentId = s.Id,
-                Name = s.Name,
+                Name = s.Name ?? string.Empty,
                 RollNo = s.RollNo,
                 Email = s.User.Email,
-                PhoneNumber = s.PhoneNumber,
-                Branch = s.Branch,
-                Gender = s.Gender,
-                DateOfBirth = s.DateOfBirth,
-                TenthPercentage = s.TenthPercentage,
-                TwelfthPercentage = s.TwelfthPercentage,
+                PhoneNumber = s.PhoneNumber ?? string.Empty,
+                Branch = s.Branch ?? string.Empty,
+                Gender = s.Gender ?? string.Empty,
+                DateOfBirth = s.DateOfBirth ?? DateOnly.MinValue,
+                TenthPercentage = s.TenthPercentage ?? 0m,
+                TwelfthPercentage = s.TwelfthPercentage ?? 0m,
                 SgpaSem1 = s.SgpaSem1,
                 SgpaSem2 = s.SgpaSem2,
                 SgpaSem3 = s.SgpaSem3,
@@ -74,10 +74,10 @@ public class AdminService : IAdminService
                 SgpaSem6 = s.SgpaSem6,
                 SgpaSem7 = s.SgpaSem7,
                 SgpaSem8 = s.SgpaSem8,
-                CGPA = s.CGPA,
-                ResumeUrl = s.ResumeUrl,
+                CGPA = s.CGPA ?? 0m,
+                ResumeUrl = s.ResumeUrl ?? string.Empty,
                 IsPlaced = s.IsPlaced,
-                PlacedCompanyName = s.PlacedCompany != null ? s.PlacedCompany.Name: null,
+                PlacedCompanyName = s.PlacedCompany != null ? s.PlacedCompany.Name : null,
                 PlacedCTC = s.PlacedCTC
             }).FirstOrDefaultAsync();
     }
@@ -85,6 +85,7 @@ public class AdminService : IAdminService
     public async Task<List<AdminStudentDetailResponseDto>> GetStudentDetailsAsync(string? branch, bool? isPlaced, int? companyId)
     {
         IQueryable<Student> query = _context.Students;
+
         // Branch filter
         if (!string.IsNullOrWhiteSpace(branch))
         {
@@ -107,15 +108,15 @@ public class AdminService : IAdminService
             .Select(s => new AdminStudentDetailResponseDto
             {
                 StudentId = s.Id,
-                Name = s.Name,
+                Name = s.Name ?? string.Empty,
                 RollNo = s.RollNo,
                 Email = s.User.Email,
-                PhoneNumber = s.PhoneNumber,
-                Branch = s.Branch,
-                Gender = s.Gender,
-                DateOfBirth = s.DateOfBirth,
-                TenthPercentage = s.TenthPercentage,
-                TwelfthPercentage = s.TwelfthPercentage,
+                PhoneNumber = s.PhoneNumber ?? string.Empty,
+                Branch = s.Branch ?? string.Empty,
+                Gender = s.Gender ?? string.Empty,
+                DateOfBirth = s.DateOfBirth ?? DateOnly.MinValue,
+                TenthPercentage = s.TenthPercentage ?? 0m,
+                TwelfthPercentage = s.TwelfthPercentage ?? 0m,
                 SgpaSem1 = s.SgpaSem1,
                 SgpaSem2 = s.SgpaSem2,
                 SgpaSem3 = s.SgpaSem3,
@@ -124,8 +125,8 @@ public class AdminService : IAdminService
                 SgpaSem6 = s.SgpaSem6,
                 SgpaSem7 = s.SgpaSem7,
                 SgpaSem8 = s.SgpaSem8,
-                CGPA = s.CGPA,
-                ResumeUrl = s.ResumeUrl,
+                CGPA = s.CGPA ?? 0m,
+                ResumeUrl = s.ResumeUrl ?? string.Empty,
                 IsPlaced = s.IsPlaced,
                 PlacedCompanyName = s.PlacedCompany != null ? s.PlacedCompany.Name : null,
                 PlacedCTC = s.PlacedCTC

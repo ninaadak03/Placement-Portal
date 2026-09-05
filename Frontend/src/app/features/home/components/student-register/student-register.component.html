@@ -28,21 +28,11 @@
     }
   </div>
 
-  <button
-  type="submit"
-  [disabled]="registerForm.invalid || isSubmitting">
-
-  @if (isSubmitting) {
-    Registering...
-  } @else {
-    Register
-  }
-
-</button>
-
-@if (serverError) {
-  <small class="error server-error">
-    {{ serverError }}
-  </small>
-}
+  <button type="submit" [disabled]="registerForm.invalid || isSubmitting()">
+    @if (isSubmitting()) {
+      Registering...
+    } @else {
+      Register
+    }
+  </button>
 </form>

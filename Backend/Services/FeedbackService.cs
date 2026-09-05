@@ -112,7 +112,7 @@ public class FeedbackService : IFeedbackService
 
         if (!string.IsNullOrWhiteSpace(studentName))
         {
-            query = query.Where(f => f.Student.Name.Contains(studentName));
+            query = query.Where(f => f.Student.Name != null && f.Student.Name.Contains(studentName));
         }
 
         if (!string.IsNullOrWhiteSpace(companyName))
@@ -124,7 +124,7 @@ public class FeedbackService : IFeedbackService
             .Select(f => new FeedbackResponseDto
             {
                 FeedbackId = f.Id,
-                StudentName = f.Student.Name,
+                StudentName = f.Student.Name ?? string.Empty,
                 CompanyName = f.Company.Name,
                 GraduationYear = f.GraduationYear,
                 Role = f.Role,

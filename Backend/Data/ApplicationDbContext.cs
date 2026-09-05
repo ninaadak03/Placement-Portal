@@ -42,6 +42,7 @@ public class ApplicationDbContext : DbContext
         
         modelBuilder.Entity<Student>()
             .HasIndex(s => s.PhoneNumber)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("[PhoneNumber] IS NOT NULL");
     }
 }

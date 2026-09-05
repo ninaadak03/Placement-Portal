@@ -32,14 +32,14 @@ public class StudentService : IStudentService
             Email = student.User.Email,
             RollNo = student.RollNo,
 
-            Name = student.Name,
-            PhoneNumber = student.PhoneNumber,
-            Branch = student.Branch,
-            Gender = student.Gender,
-            DateOfBirth = student.DateOfBirth,
+            Name = student.Name ?? string.Empty,
+            PhoneNumber = student.PhoneNumber ?? string.Empty,
+            Branch = student.Branch ?? string.Empty,
+            Gender = student.Gender ?? string.Empty,
+            DateOfBirth = student.DateOfBirth ?? DateOnly.MinValue,
 
-            TenthPercentage = student.TenthPercentage,
-            TwelfthPercentage = student.TwelfthPercentage,
+            TenthPercentage = student.TenthPercentage ?? 0m,
+            TwelfthPercentage = student.TwelfthPercentage ?? 0m,
 
             SgpaSem1 = student.SgpaSem1,
             SgpaSem2 = student.SgpaSem2,
@@ -50,9 +50,9 @@ public class StudentService : IStudentService
             SgpaSem7 = student.SgpaSem7,
             SgpaSem8 = student.SgpaSem8,
 
-            CGPA = student.CGPA,
+            CGPA = student.CGPA ?? 0m,
 
-            ResumeUrl = student.ResumeUrl,
+            ResumeUrl = student.ResumeUrl ?? string.Empty,
 
             IsProfileCompleted = student.IsProfileCompleted
         };
@@ -330,26 +330,34 @@ public class StudentService : IStudentService
     private bool IsStudentEligible(Student student, Opening opening)
     {
         bool eligible =
-            student.CGPA >= opening.MinCGPA &&
-            student.TenthPercentage >= opening.MinTenthPercentage &&
-            student.TwelfthPercentage >= opening.MinTwelfthPercentage;
+            (student.CGPA ?? 0m) >= opening.MinCGPA &&
+            (student.TenthPercentage ?? 0m) >= opening.MinTenthPercentage &&
+            (student.TwelfthPercentage ?? 0m) >= opening.MinTwelfthPercentage;
 
         // Branch check
         if (!string.IsNullOrWhiteSpace(opening.AllowedBranches))
         {
             var allowedBranches = opening.AllowedBranches
                 .Split(',', StringSplitOptions.RemoveEmptyEntries).Select(b => b.Trim());
-            eligible &= allowedBranches.Contains(student.Branch);
+            eligible &= student.Branch != null && allowedBranches.Contains(student.Branch);
         }
         // Age check
         if (opening.MaxAge.HasValue)
         {
-            int age = DateTime.Today.Year - student.DateOfBirth.Year;
-            if (student.DateOfBirth.ToDateTime(TimeOnly.MinValue) > DateTime.Today.AddYears(-age))
-            {
-                age--;
-            }
-            eligible &= age <= opening.MaxAge.Value;
+            if (!student.DateOfBirth.HasValue)
+        {
+            return false;
+        }
+
+        // Unwrap the value safely using .Value
+        DateOnly dob = student.DateOfBirth.Value;
+
+        int age = DateTime.Today.Year - dob.Year;
+        if (dob.ToDateTime(TimeOnly.MinValue) > DateTime.Today.AddYears(-age))
+        {
+            age--;
+        }
+        eligible &= age <= opening.MaxAge.Value;
         }
         return eligible;
     }
