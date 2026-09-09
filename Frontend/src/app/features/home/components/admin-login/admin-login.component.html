@@ -1,2 +1,34 @@
-<h2>Admin Login</h2>
-<p>Admin login form will go here.</p>
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="adminEmail">Email</label>
+
+    <input id="adminEmail" type="email" formControlName="email" placeholder="Enter your Email" />
+
+    @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
+      <small class="error"> Please enter a valid email. </small>
+    }
+  </div>
+
+  <div>
+    <label for="adminPassword">Password</label>
+
+    <input
+      id="adminPassword"
+      type="password"
+      formControlName="password"
+      placeholder="Enter your Password"
+    />
+
+    @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+      <small class="error"> Password is required. </small>
+    }
+  </div>
+
+  <button type="submit" [disabled]="loginForm.invalid || isSubmitting()">
+    @if (isSubmitting()) {
+      Logging in...
+    } @else {
+      Login
+    }
+  </button>
+</form>

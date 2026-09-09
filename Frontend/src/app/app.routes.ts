@@ -9,14 +9,14 @@ export const routes: Routes = [
     path: 'verify-otp',
     loadChildren: () => import('./features/auth/otp/otp.routes').then((m) => m.OTP_ROUTES),
   },
-  // {
-  //   path: 'student',
-  //   loadChildren: () => import('./features/student/student.routes').then((m) => m.STUDENT_ROUTES),
-  // },
-  // {
-  //   path: 'admin',
-  //   loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
-  // },
+  {
+    path: 'student',
+    loadChildren: () => import('./features/student/student.routes').then((m) => m.STUDENT_ROUTES),
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
   {
     path: '**',
     redirectTo: '',

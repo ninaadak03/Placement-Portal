@@ -1,0 +1,108 @@
+<section class="dashboard">
+  @if (isLoading()) {
+    <p>Loading...</p>
+  } @else {
+    <h1>Welcome, {{ studentName() }}!</h1>
+
+    <div class="opening-tabs">
+      <button
+        type="button"
+        class="tab"
+        [class.active]="selectedTab() === OpeningTab.Active"
+        (click)="selectTab(OpeningTab.Active)"
+      >
+        Active
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        [class.active]="selectedTab() === OpeningTab.Ineligible"
+        (click)="selectTab(OpeningTab.Ineligible)"
+      >
+        Ineligible
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        [class.active]="selectedTab() === OpeningTab.Applied"
+        (click)="selectTab(OpeningTab.Applied)"
+      >
+        Applied
+      </button>
+    </div>
+
+    <div class="tab-content">
+      @if (isOpeningsLoading()) {
+        <p>Loading openings...</p>
+      } @else if (selectedTab() === OpeningTab.Active) {
+        @if (activeOpenings.length === 0) {
+          <p>No active openings available.</p>
+        } @else {
+          @for (opening of activeOpenings; track opening.openingId) {
+            <article class="opening-card">
+              <h2>{{ opening.companyName }}</h2>
+              <p>{{ opening.role }}</p>
+
+              @if (opening.ctc !== null) {
+                <p>CTC: ₹{{ opening.ctc }}</p>
+              }
+
+              @if (opening.stipend !== null) {
+                <p>Stipend: ₹{{ opening.stipend }}</p>
+              }
+
+              <p>
+                Deadline:
+                {{ opening.applicationDeadline | date }}
+              </p>
+
+              <button type="button">Apply</button>
+            </article>
+          }
+        }
+      } @else if (selectedTab() === OpeningTab.Ineligible) {
+        @if (ineligibleOpenings.length === 0) {
+          <p>No ineligible openings.</p>
+        } @else {
+          @for (opening of ineligibleOpenings; track opening.openingId) {
+            <article class="opening-card">
+              <h2>{{ opening.companyName }}</h2>
+              <p>{{ opening.role }}</p>
+
+              @if (opening.ctc !== null) {
+                <p>CTC: ₹{{ opening.ctc }}</p>
+              }
+
+              @if (opening.stipend !== null) {
+                <p>Stipend: ₹{{ opening.stipend }}</p>
+              }
+            </article>
+          }
+        }
+      } @else {
+        @if (appliedOpenings.length === 0) {
+          <p>You haven't applied to any openings yet.</p>
+        } @else {
+          @for (opening of appliedOpenings; track opening.openingId) {
+            <article class="opening-card">
+              <h2>{{ opening.companyName }}</h2>
+              <p>{{ opening.role }}</p>
+
+              @if (opening.ctc !== null) {
+                <p>CTC: ₹{{ opening.ctc }}</p>
+              }
+
+              @if (opening.stipend !== null) {
+                <p>Stipend: ₹{{ opening.stipend }}</p>
+              }
+
+              <p>Applied</p>
+            </article>
+          }
+        }
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,21 @@
+<header>
+  <a class="brand" routerLink="/student"> College Placement Portal </a>
+
+  <nav>
+    @if (isProfileCompleted()) {
+      <a routerLink="/student/status">Status</a>
+      <a routerLink="/student/feedback">Feedback</a>
+      <a routerLink="/student/profile">Profile</a>
+    } @else {
+      <span class="disabled-link">Status</span>
+      <span class="disabled-link">Feedback</span>
+      <span class="disabled-link">Profile</span>
+    }
+
+    <button type="button" (click)="logout()">Log Out</button>
+  </nav>
+</header>
+
+<main>
+  <router-outlet />
+</main>

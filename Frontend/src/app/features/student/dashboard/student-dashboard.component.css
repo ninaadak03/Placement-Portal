@@ -1,0 +1,36 @@
+.dashboard {
+  width: min(100%, 1200px);
+  margin: 0 auto;
+}
+
+.dashboard h1 {
+  margin-bottom: 2rem;
+}
+
+.opening-tabs {
+  display: flex;
+  width: 100%;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tab {
+  flex: 1;
+
+  padding: 1rem;
+
+  border: none;
+  background: transparent;
+
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.tab.active {
+  border-bottom: 3px solid #2563eb;
+  font-weight: 600;
+}
+
+.tab-content {
+  padding: 2rem 0;
+}
