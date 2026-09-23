@@ -27,4 +27,6 @@ public class StudentOpeningResponseDto
     public bool IsEligible { get; set; }
 
     public bool HasApplied { get; set; }
+    
+    public bool IsApplicationLimitReached { get; set; }
 }

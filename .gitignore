@@ -26,6 +26,8 @@ appsettings.Development.json
 appsettings.Local.json
 *.secrets.json
 
+
+
 ## #######################################################
 ## Angular / Node.js Configuration
 ## #######################################################

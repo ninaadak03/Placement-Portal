@@ -10,7 +10,7 @@ public class PlacementSettings
 
     public bool BlockPlacedStudents { get; set; }
 
-    [Column(TypeName = "decimal(3,2)")]
-    [Range(0, 10)]
+    [Column(TypeName = "decimal(5,2)")]
+    [Range(0, 100)]
     public decimal MinCTCDifferencePercentage { get; set; }
 }

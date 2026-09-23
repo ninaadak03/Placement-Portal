@@ -100,17 +100,49 @@ app.UseCors("AllowAngular");
 app.UseAuthorization();
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+// using (var scope = app.Services.CreateScope())
+// {
+//     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    await AdminSeeder.SeedAdminAsync(context, builder.Configuration);
-}
+//     await AdminSeeder.SeedAdminAsync(context, builder.Configuration);
+// }
 
 // using (var scope = app.Services.CreateScope())
 // {
 //     var seeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
 //     await seeder.SeedStudentsAsync();
+// }
+
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+//     try
+//     {
+//         var context = services.GetRequiredService<ApplicationDbContext>(); 
+        
+//         await OpeningSeeder.SeedOpeningsAsync(context);
+//     }
+//     catch (Exception ex)
+//     {
+//         var logger = services.GetRequiredService<ILogger<Program>>();
+//         logger.LogError(ex, "An error occurred while seeding openings.");
+//     }
+// }
+
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+//     try
+//     {
+//         var context = services.GetRequiredService<ApplicationDbContext>(); 
+        
+//         await ApplicationSeeder.SeedApplicationsAsync(context);
+//     }
+//     catch (Exception ex)
+//     {
+//         var logger = services.GetRequiredService<ILogger<Program>>();
+//         logger.LogError(ex, "An error occurred while seeding applications.");
+//     }
 // }
 
 app.Run();

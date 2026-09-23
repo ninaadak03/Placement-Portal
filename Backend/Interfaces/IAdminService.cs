@@ -1,5 +1,6 @@
 using Backend.DTOs.Student;
 using Backend.DTOs.Admin;
+using Backend.DTOs.Auth;
 
 namespace Backend.Interfaces;
 
@@ -12,4 +13,10 @@ public interface IAdminService
     Task<List<AdminStudentDetailResponseDto>> GetStudentDetailsAsync(string? branch, bool? isPlaced, int? companyId);
 
     Task<AdminDashboardResponseDto> GetDashboardAsync();
+
+    Task<PlacementSettingsResponseDto?> GetPlacementSettingsAsync();
+
+    Task<ServiceResponseDto> UpdatePlacementSettingsAsync(UpdatePlacementSettingsDto dto);
+
+
 }

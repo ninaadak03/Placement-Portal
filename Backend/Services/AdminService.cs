@@ -1,6 +1,7 @@
 using Backend.Data;
 using Backend.DTOs.Student;
 using Backend.DTOs.Admin;
+using Backend.DTOs.Auth;
 using Backend.Interfaces;
 using Backend.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -155,6 +156,38 @@ public class AdminService : IAdminService
             TotalCompanies = totalCompanies,
             TotalOpenings = totalOpenings,
             TotalApplications = totalApplications
+        };
+    }
+
+    public async Task<PlacementSettingsResponseDto?> GetPlacementSettingsAsync()
+    {
+        return await _context.PlacementSettings.Select(s => new PlacementSettingsResponseDto
+            {
+                MinCTCDifferencePercentage = s.MinCTCDifferencePercentage
+            }).FirstOrDefaultAsync();
+    }
+
+    public async Task<ServiceResponseDto> UpdatePlacementSettingsAsync(UpdatePlacementSettingsDto dto)
+    {
+        PlacementSettings? settings = await _context.PlacementSettings.FirstOrDefaultAsync();
+
+        if (settings == null)
+        {
+            return new ServiceResponseDto
+            {
+                Success = false,
+                Message = "Placement settings not found."
+            };
+        }
+
+        settings.MinCTCDifferencePercentage = dto.MinCTCDifferencePercentage;
+
+        await _context.SaveChangesAsync();
+
+        return new ServiceResponseDto
+        {
+            Success = true,
+            Message = "Placement settings updated successfully."
         };
     }
 }

@@ -1,4 +1,5 @@
 using Backend.Interfaces;
+using Backend.DTOs.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -59,5 +60,34 @@ public class AdminController : ControllerBase
     {
         var dashboard = await _adminService.GetDashboardAsync();
         return Ok(dashboard);
+    }
+
+    [HttpGet("placement-settings")]
+    public async Task<IActionResult> GetPlacementSettings()
+    {
+        var settings = await _adminService.GetPlacementSettingsAsync();
+
+        if (settings == null)
+        {
+            return NotFound(new
+            {
+                Message = "Placement settings not found."
+            });
+        }
+
+        return Ok(settings);
+    }
+
+    [HttpPut("placement-settings")]
+    public async Task<IActionResult> UpdatePlacementSettings([FromBody] UpdatePlacementSettingsDto dto)
+    {
+        var result = await _adminService.UpdatePlacementSettingsAsync(dto);
+
+        if (!result.Success)
+        {
+            return NotFound(result);
+        }
+
+        return Ok(result);
     }
 }

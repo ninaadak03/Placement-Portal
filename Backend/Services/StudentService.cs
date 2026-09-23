@@ -137,17 +137,19 @@ public class StudentService : IStudentService
 
     public async Task<List<StudentOpeningResponseDto>> GetAvailableOpeningsAsync(int userId)
     {
-        Student? student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+        Student? student = await _context.Students
+            .FirstOrDefaultAsync(s => s.UserId == userId);
 
-        if(student == null)
+        if (student == null)
         {
             throw new Exception("Student not found.");
         }
-        
-        var openings = await _context.Openings.Include(o => o.Company)
+
+        var openings = await _context.Openings
+            .Include(o => o.Company)
             .Where(o => o.ApplicationDeadline > DateTime.UtcNow)
             .ToListAsync();
-        
+
         List<StudentOpeningResponseDto> result = [];
 
         foreach (var opening in openings)
@@ -155,9 +157,16 @@ public class StudentService : IStudentService
             bool eligible = IsStudentEligible(student, opening);
 
             bool hasApplied = await _context.Applications.AnyAsync(a =>
-                    a.StudentId == student.Id &&
-                    a.OpeningId == opening.Id);
-            
+                a.StudentId == student.Id &&
+                a.OpeningId == opening.Id);
+
+            int applicationCount = await _context.Applications
+                .CountAsync(a => a.OpeningId == opening.Id);
+
+            bool isApplicationLimitReached =
+                opening.MaxParticipants.HasValue &&
+                applicationCount >= opening.MaxParticipants.Value;
+
             result.Add(new StudentOpeningResponseDto
             {
                 OpeningId = opening.Id,
@@ -172,9 +181,11 @@ public class StudentService : IStudentService
                 MaxAge = opening.MaxAge,
                 ApplicationDeadline = opening.ApplicationDeadline,
                 IsEligible = eligible,
-                HasApplied = hasApplied
+                HasApplied = hasApplied,
+                IsApplicationLimitReached = isApplicationLimitReached
             });
         }
+
         return result;
     }
 
@@ -191,6 +202,7 @@ public class StudentService : IStudentService
                 Message = "Student not found."
             };
         }
+
         // Profile must be completed
         if (!student.IsProfileCompleted)
         {
@@ -200,9 +212,9 @@ public class StudentService : IStudentService
                 Message = "Complete your profile before applying."
             };
         }
+
         // Get opening
-        Opening? opening = await _context.Openings.Include(o => o.Company)
-            .FirstOrDefaultAsync(o => o.Id == openingId);
+        Opening? opening = await _context.Openings.Include(o => o.Company).FirstOrDefaultAsync(o => o.Id == openingId);
 
         if (opening == null)
         {
@@ -212,6 +224,7 @@ public class StudentService : IStudentService
                 Message = "Opening not found."
             };
         }
+
         // Deadline check
         if (opening.ApplicationDeadline <= DateTime.UtcNow)
         {
@@ -221,6 +234,7 @@ public class StudentService : IStudentService
                 Message = "Application deadline has passed."
             };
         }
+
         // Already applied?
         bool alreadyApplied = await _context.Applications
             .AnyAsync(a => a.StudentId == student.Id && a.OpeningId == openingId);
@@ -233,10 +247,12 @@ public class StudentService : IStudentService
                 Message = "You have already applied to this opening."
             };
         }
+
         // Max participants check
         if (opening.MaxParticipants.HasValue)
         {
             int applicationCount = await _context.Applications.CountAsync(a => a.OpeningId == openingId);
+
             if (applicationCount >= opening.MaxParticipants.Value)
             {
                 return new ServiceResponseDto
@@ -246,7 +262,8 @@ public class StudentService : IStudentService
                 };
             }
         }
-        // Dream offer rule
+
+        // Dream offer rule for placed students
         if (student.IsPlaced)
         {
             if (!opening.CTC.HasValue)
@@ -257,6 +274,7 @@ public class StudentService : IStudentService
                     Message = "Placed students cannot apply for internship-only openings."
                 };
             }
+
             if (!student.PlacedCTC.HasValue)
             {
                 return new ServiceResponseDto
@@ -265,18 +283,32 @@ public class StudentService : IStudentService
                     Message = "Placed CTC information missing."
                 };
             }
-            if (opening.CTC <= student.PlacedCTC.Value * 1.5m)
+
+            PlacementSettings? settings = await _context.PlacementSettings.FirstOrDefaultAsync();
+
+            if (settings == null)
             {
                 return new ServiceResponseDto
                 {
                     Success = false,
-                    Message = "Only dream offers above 1.5x your current package are allowed."
+                    Message = "Placement settings not configured."
+                };
+            }
+
+            decimal minimumCTC = student.PlacedCTC.Value * (1 + settings.MinCTCDifferencePercentage / 100);
+
+            if (opening.CTC.Value < minimumCTC)
+            {
+                return new ServiceResponseDto
+                {
+                    Success = false,
+                    Message = $"Only offers at least {settings.MinCTCDifferencePercentage}% higher than your current package are allowed."
                 };
             }
         }
 
         // Eligibility check
-        bool eligible = IsStudentEligible(student,opening);
+        bool eligible = IsStudentEligible(student, opening);
 
         if (!eligible)
         {

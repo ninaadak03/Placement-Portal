@@ -82,23 +82,22 @@
           }
         }
       } @else {
-        @if (appliedOpenings.length === 0) {
+        @if (isApplicationsLoading()) {
+          <p>Loading applications...</p>
+        } @else if (applications().length === 0) {
           <p>You haven't applied to any openings yet.</p>
         } @else {
-          @for (opening of appliedOpenings; track opening.openingId) {
+          @for (application of applications(); track application.applicationId) {
             <article class="opening-card">
-              <h2>{{ opening.companyName }}</h2>
-              <p>{{ opening.role }}</p>
+              <h2>{{ application.companyName }}</h2>
+              <p>{{ application.role }}</p>
+              <p>Applied on: {{ application.appliedOn | date }}</p>
 
-              @if (opening.ctc !== null) {
-                <p>CTC: ₹{{ opening.ctc }}</p>
+              @if (application.isSelected) {
+                <p>Selected</p>
+              } @else {
+                <p>Applied</p>
               }
-
-              @if (opening.stipend !== null) {
-                <p>Stipend: ₹{{ opening.stipend }}</p>
-              }
-
-              <p>Applied</p>
             </article>
           }
         }

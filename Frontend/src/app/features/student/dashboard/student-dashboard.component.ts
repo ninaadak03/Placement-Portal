@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { StudentService } from '../../../core/services/student.service';
 import { StudentOpeningResponseDto } from '../../../core/models/student/student-opening-response.dto';
+import { StudentApplicationResponseDto } from '../../../core/models/student/student-application-response.dto';
 
 enum OpeningTab {
   Active = 'Active',
@@ -30,9 +31,13 @@ export class StudentDashboardComponent {
 
   protected readonly openings = signal<StudentOpeningResponseDto[]>([]);
 
+  protected readonly applications = signal<StudentApplicationResponseDto[]>([]);
+  protected readonly isApplicationsLoading = signal(true);
+
   constructor() {
     this.loadProfile();
     this.loadOpenings();
+    this.loadApplications();
   }
 
   protected selectTab(tab: OpeningTab): void {
@@ -47,8 +52,16 @@ export class StudentDashboardComponent {
     return this.openings().filter((opening) => !opening.isEligible);
   }
 
-  protected get appliedOpenings(): StudentOpeningResponseDto[] {
-    return this.openings().filter((opening) => opening.hasApplied);
+  private loadApplications(): void {
+    this.studentService.getApplications().subscribe({
+      next: (applications) => {
+        this.applications.set(applications);
+        this.isApplicationsLoading.set(false);
+      },
+      error: () => {
+        this.isApplicationsLoading.set(false);
+      },
+    });
   }
 
   private loadProfile(): void {
